@@ -1,0 +1,456 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTURK</title>
+    <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   <style>
+        @keyframes tonext {
+            75% { left: 0; }
+            95% { left: 100%; }
+            98% { left: 100%; }
+            99% { left: 0; }
+        }
+
+        @keyframes tostart {
+            75% { left: 0; }
+            95% { left: -300%; }
+            98% { left: -300%; }
+            99% { left: 0; }
+        }
+
+        @keyframes snap {
+            96% { scroll-snap-align: center; }
+            97% { scroll-snap-align: none; }
+            99% { scroll-snap-align: none; }
+            100% { scroll-snap-align: center; }
+        }
+
+        body {
+            max-width: 100rem;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            font-family: 'Lato', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-color: transparent transparent;
+            scrollbar-width: 0px;
+        }
+
+        *::-webkit-scrollbar {
+            width: 0;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: transparent;
+            border: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            -webkit-animation-delay: 3600s;
+        }
+
+        ol, li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        crowd-slider {
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .carousel {
+            position: relative;
+            padding-top: 50%;
+            filter: drop-shadow(0 0 10px #0003);
+            perspective: 100px;
+        }
+
+        .carousel__viewport {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            overflow-x: scroll;
+            counter-reset: item;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+        }
+
+        .carousel__slide {
+            position: relative;
+            flex: 0 0 100%;
+            width: 100%;
+            counter-increment: item;
+            -webkit-animation: slide 3600s infinite linear;
+        }
+        
+        .carousel__slide--visible {
+            display: block; /* or any style to make it visible */
+        }
+
+        .carousel__slide:nth-child(even) {
+            -webkit-animation-delay: 3600s;
+        }
+
+        .carousel__slide:nth-child(odd) {
+            -webkit-animation-delay: 3600s;
+        }
+
+        .carousel__slide:before {
+            content: counter(item);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate3d(-50%, -40%, 70px);
+            color: #fff;
+            font-size: 2em;
+        }
+
+        .carousel__snapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            scroll-snap-align: center;
+        }
+
+        .carousel:hover .carousel__snapper,
+        .carousel:focus-within .carousel__snapper {
+            animation-name: none;
+        }
+
+        .carousel__navigation {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            text-align: center;
+        }
+
+        .carousel__navigation-list,
+        .carousel__navigation-item {
+            display: inline-block;
+        }
+
+        .carousel__navigation-button {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: #333;
+            background-clip: content-box;
+            border: 0.25rem solid transparent;
+            border-radius: 50%;
+            font-size: 0;
+            transition: transform 0.1s;
+        }
+
+        .carousel::before,
+        .carousel::after,
+        .carousel__prev,
+        .carousel__next {
+            position: absolute;
+            top: 0;
+            margin-top: 20%;
+            width: 3rem;
+            height: 3rem;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            font-size: 0;
+            outline: 0;
+        }
+
+        .carousel::before,
+        .carousel__prev {
+            left: -0.5rem;
+            /* display: none; */
+        }
+
+        .carousel::after,
+        .carousel__next {
+            right: 1rem;
+        }
+
+        .carousel::before,
+        .carousel::after {
+            content: '';
+            z-index: 1;
+            background-color: #333;
+            background-size: 2rem 2rem;
+            background-repeat: no-repeat;
+            background-position: center center;
+            color: #fff;
+            font-size: 2.5rem;
+            line-height: 4rem;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .carousel::before {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='0,50 80,100 80,0' fill='%23fff'/%3E%3C/svg%3E");
+        }
+
+        .carousel::after {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='100,50 20,100 20,0' fill='%23fff'/%3E%3C/svg%3E");
+        }
+
+        .outer-container {
+            display: flex;
+            justify-content: space-around;
+            margin-left: 10px;
+            padding-top: 10px;
+        }
+
+        .vertical-separator {
+            border: solid 1px #D5DBDB;
+        }
+
+        .left-container {
+            padding-right: 5px;
+        }
+
+        .right-container {
+            padding-top: 20px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <crowd-form answer-format="flatten-objects">
+        <div id="errorBox"></div>
+        <section class="carousel" aria-label="survey" data-interval="false">
+            <ol id="carouselViewport" class="carousel__viewport">
+                
+            </ol>
+        </section>
+    </crowd-form>
+
+
+
+<script>
+        function demographicSlide() {
+            return `
+                <li id="carousel__slide0" tabindex="0" class="carousel__slide">
+                    <div class="carousel__snapper">
+                        <div class="outer-container">
+                            <span class="left-container">
+                                <h3>Demographic survey</h3>
+                                <p>Please complete demographics questions before you start the task.</p>
+                                <p>You can find the consent form in the following link:</p>
+                                <p><a href="https://www.cs.umb.edu/~fundad/face/consent.pdf" target="_blank">Consent form</a></p>
+                            </span>
+                            <span class="vertical-separator"></span>
+                            <span class="right-container">
+                                <div>
+                                    <p><strong>1. What is your age?</strong></p>
+                                    <input type="range" value="35" name="h11" min="18" max="100" id="h11" oninput="this.nextElementSibling.value = this.value">
+                                    <output>35</output>
+                                </div>
+                                <div>
+                                    <p><strong>2. What is your gender?</strong></p>
+                                    <input type="radio" id="Female" name="h12" value="Female">
+                                    <label for="Female">Female</label><br>
+                                    <input type="radio" id="Male" name="h12" value="Male">
+                                    <label for="Male">Male</label><br>
+                                    <input type="radio" id="Other" name="h12" value="Other">
+                                    <label for="Other">Other</label><br>
+                                    <input type="radio" id="Prefer not to say_1" name="h12" value="Prefer not to say">
+                                    <label for="Prefer not to say_1">Prefer not to say</label>
+                                </div>
+                                <div>
+                                    <p><strong>3. What is your ethnicity?</strong></p>
+                                    <input type="radio" id="Hispanic or Latino" name="h13" value="Hispanic or Latino">
+                                    <label for="Hispanic or Latino">Hispanic or Latino</label><br>
+                                    <input type="radio" id="Not Hispanic or Latino" name="h13" value="Not Hispanic or Latino">
+                                    <label for="Not Hispanic or Latino">Not Hispanic or Latino</label><br>
+                                    <input type="radio" id="Prefer not to say_2" name="h13" value="Prefer not to say">
+                                    <label for="Prefer not to say_2">Prefer not to say</label>
+                                </div>
+                                <div>
+                                    <p><strong>4. What is your race?</strong></p>
+                                    <input type="radio" id="American Indian or Alaska Native" name="h14" value="American Indian or Alaska Native">
+                                    <label for="American Indian or Alaska Native">American Indian or Alaska Native</label><br>
+                                    <input type="radio" id="Asian" name="h14" value="Asian">
+                                    <label for="Asian">Asian</label><br>
+                                    <input type="radio" id="Black or African American" name="h14" value="Black or African American">
+                                    <label for="Black or African American">Black or African American</label><br>
+                                    <input type="radio" id="Native Hawaiian or Other Pacific Islander" name="h14" value="Native Hawaiian or Other Pacific Islander">
+                                    <label for="Native Hawaiian or Other Pacific Islander">Native Hawaiian or Other Pacific Islander</label><br>
+                                    <input type="radio" id="White" name="h14" value="White">
+                                    <label for="White">White</label><br>
+                                    <input type="radio" id="Prefer not to say_3" name="h14" value="Prefer not to say">
+                                    <label for="Prefer not to say_3">Prefer not to say</label>
+                                </div>
+                            </span>
+                        </div>
+                        <a href="#carousel__slide1" class="carousel__next"></a>
+                    </div>
+                </li>
+            `;
+        }
+
+        function questionSlide(id, video1, video2, questionText, name, isAttention) {
+            let prevSlide = id - 1;
+            let nextSlide = id + 1;
+            if(id >= 7)
+                nextSlide = 7;
+
+            let questionRight = 'The person on the right';
+            let questionLeft = 'The person on the left';
+
+            if(isAttention == 'left')
+                questionLeft  = 'They are the same person';
+            else if(isAttention == 'right')
+                questionRight  = 'They are the same person';
+
+        return (
+            '<li id="carousel__slide' + id + '" tabindex="0" class="carousel__slide">' +
+                '<div class="carousel__snapper">' +
+                    '<div class="outer-container">' +
+                        '<span class="left-container">' +
+                            '<h3></h3>' +                            
+                            '<p>You must answer <b>all the seven questions</b> before submitting the HIT.</p>' +
+                            '<p>You can find the consent form in the following link:</p>' +
+                            '<p><a href="https://www.cs.umb.edu/~fundad/expressions/CONSENT_FORM.pdf" target="_blank">Consent form</a></p>' +
+                        '</span>' +
+                        '<span class="vertical-separator"></span>' +
+                        '<div class="video-container">' +
+                            '<video autoplay width="48%" height="400" controls muted>' +
+                                '<source src="' + video1 + '" type="video/mp4">' +
+                            '</video>' +
+                            '<video autoplay width="48%" height="400" controls muted>' +
+                                '<source src="' + video2 + '" type="video/mp4">' +
+                            '</video>' +
+                        '</div>' +
+                        '<div class="question-container">' +
+                            '<h3></h3><p></p>' +
+                            '<p><b>Please watch both videos to the end and answer the question by considering ONLY the facial expressions, head movement, and eye gaze. </b> </p>' +
+                            '<p> Disregard any other previous knowledge about the people in the videos and cues likes background, age, gender, etc. </p>' +
+                            '<p style="font-size: 18px;"><strong>' + id +'/7. ' +  questionText + '</strong></p>' +
+                            '<input type="radio" id="' + name + '_left" name="' + name + '" value="left">' +
+                            '<label for="' + name + '_left" style="font-size: 18px;">'+ questionLeft + '</label><br><p></p>' + 
+                            '<input type="radio" id="' + name + '_right" name="' + name + '" value="right">' +
+                            '<label for="' + name + '_right" style="font-size: 18px;">'+ questionRight+ '</label><br><p></p>' +                        
+                            '<br>' +
+                        '</div>' +
+                    '</div>' +
+                    '<a href="#carousel__slide' + prevSlide + '" class="carousel__prev">Go to previous slide</a>' +
+                    '<a href="#carousel__slide' + nextSlide + '" class="carousel__next">Go to next slide</a>' +
+                '</div>' +
+            '</li>'
+        );
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const errorBox = document.getElementById('errorBox');
+                
+        const carouselViewport = document.getElementById('carouselViewport');
+        
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        
+        }
+
+
+        let questions = [
+        
+                
+                { video1: "${openness_video1}", video2:"${openness_video2}",  questionText: 'Whose facial expressions look MORE open to new experiences \& complex <br> and LESS conventional \& uncreative?', name: 'hO', isAttention:false },
+                { video1: "${conscientiousness_video1}", video2:"${conscientiousness_video2}", questionText: 'Whose facial expressions look MORE dependable \& self-disciplined<br> and LESS  disorganized \&  careless?', name: 'hC' , isAttention:false},
+                { video1: "${extroversion_video1}", video2:"${extroversion_video2}",  questionText: 'Whose facial expressions look MORE extraverted \& enthusiastic<br> and LESS reserved \&  quiet?', name: 'hE', isAttention:false },
+                {  video1: "${agreeableness_video1}", video2:"${agreeableness_video2}",questionText: 'Whose facial expressions look MORE sympathetic \& warm <br> and LESS critical \&  quarrelsome?', name: 'hA' , isAttention:false},
+                { video1: "${neuroticism_video1}", video2:"${neuroticism_video2}", questionText: 'Whose facial expressions look more MORE calm \& emotionally stable<br> and LESS  anxious \&  easily upset?', name: 'hN', isAttention:false },
+            ];
+
+            let i = Math.floor(Math.random() * 5);
+            //ask the same question
+            let testQ1 = {video1: questions[i].video1, video2:questions[i].video1,questionText:questions[i].questionText , name: 'hTLeft', isAttention:'left'}        
+            
+            i = Math.floor(Math.random() * 5);
+            //ask the same question
+            let testQ2 = {video1: questions[i].video2, video2:questions[i].video2, questionText:questions[i].questionText , name: 'hTRight', isAttention:'right'}        
+            
+
+            questions.push(testQ1);
+            questions.push(testQ2);
+
+
+
+           questions = shuffle(questions);
+
+            let slidesHTML = demographicSlide();
+          
+            console.log(questions);
+
+            questions.forEach((question, index) => {
+                slidesHTML += questionSlide(index+1, question.video1, question.video2, question.questionText, question.name, question.isAttention);  
+                console.log(index);              
+            });
+
+            
+            // slidesHTML += lastSlide();
+
+            carouselViewport.innerHTML = slidesHTML;
+    
+            
+            document.querySelector('crowd-form').onsubmit = function (e) {
+
+                    let h1Answer = $("input[name='hO']:checked").val();
+                    let h2Answer = $("input[name='hC']:checked").val();
+                    let h3Answer = $("input[name='hE']:checked").val();
+                    let h4Answer = $("input[name='hA']:checked").val();
+                    let h5Answer = $("input[name='hN']:checked").val();
+                    let h6Answer = $("input[name='hTLeft']:checked").val();
+                    let h7Answer = $("input[name='hTRight']:checked").val();
+
+            let allAnswers = [ h1Answer,h2Answer, h3Answer, h4Answer, h5Answer, h6Answer, h7Answer];
+            
+            console.log(allAnswers);
+            if (allAnswers.includes(null) || allAnswers.includes(undefined)) {
+                e.preventDefault();
+                errorBox.innerHTML = '<crowd-alert type="error" dismissible>You must provide answers to all the questions. Please check everything and re-submit.</crowd-alert>';
+                errorBox.scrollIntoView();
+                return;
+            }
+        }
+
+
+
+ 
+        // Display the first slide initially
+        carouselViewport.scrollTo({ left: 0, behavior: 'auto' });
+    });
+</script>
+
+
+
+</body>
+</html>
