@@ -188,104 +188,84 @@ def reformatFiles(fileIn, fileOut, dfLabels):
 
 
 
-def calculatePrecision(diff, dfResponses, dfLabels):
+import pandas as pd
+from collections import defaultdict
 
-    #rename for easy editing
-    dfResponses = dfResponses.rename(columns={'Answer.hO.left': 'o.left', 'Answer.hO.right': 'o.right',  'Answer.hO.equal': 'o.equal',
-    'Answer.hC.left': 'c.left', 'Answer.hC.right': 'c.right',  'Answer.hC.equal': 'c.equal',
-    'Answer.hE.left': 'e.left', 'Answer.hE.right': 'e.right',  'Answer.hE.equal': 'e.equal',
-    'Answer.hA.left': 'a.left', 'Answer.hA.right': 'a.right','Answer.hA.equal': 'a.equal',
-    'Answer.hN.left': 'n.left', 'Answer.hN.right': 'n.right', 'Answer.hN.equal': 'n.equal',
-    'Input.openness_video1':'o.video.left', 'Input.openness_video2':'o.video.right',
-    'Input.conscientiousness_video1':'c.video.left', 'Input.conscientiousness_video2':'c.video.right',
-    'Input.extroversion_video1':'e.video.left', 'Input.extroversion_video2':'e.video.right',
-    'Input.agreeableness_video1':'a.video.left', 'Input.agreeableness_video2':'a.video.right',
-    'Input.neuroticism_video1':'n.video.left', 'Input.neuroticism_video2':'n.video.right'
+def calculatePrecision(diff, dfResponses, dfLabels):
+    # Rename columns for easier access
+    dfResponses = dfResponses.rename(columns={
+        'Answer.hO.left': 'o.left', 'Answer.hO.right': 'o.right', 'Answer.hO.equal': 'o.equal',
+        'Answer.hC.left': 'c.left', 'Answer.hC.right': 'c.right', 'Answer.hC.equal': 'c.equal',
+        'Answer.hE.left': 'e.left', 'Answer.hE.right': 'e.right', 'Answer.hE.equal': 'e.equal',
+        'Answer.hA.left': 'a.left', 'Answer.hA.right': 'a.right', 'Answer.hA.equal': 'a.equal',
+        'Answer.hN.left': 'n.left', 'Answer.hN.right': 'n.right', 'Answer.hN.equal': 'n.equal',
+        'Input.openness_video1': 'o.video.left', 'Input.openness_video2': 'o.video.right',
+        'Input.conscientiousness_video1': 'c.video.left', 'Input.conscientiousness_video2': 'c.video.right',
+        'Input.extroversion_video1': 'e.video.left', 'Input.extroversion_video2': 'e.video.right',
+        'Input.agreeableness_video1': 'a.video.left', 'Input.agreeableness_video2': 'a.video.right',
+        'Input.neuroticism_video1': 'n.video.left', 'Input.neuroticism_video2': 'n.video.right'
     })
 
-    dfLabels = dfLabels.rename(columns={'openness':'o', 'conscientiousness':'c', 'extroversion':'e', 'agreeableness':'a', 'neuroticism':'n'})
+    dfLabels = dfLabels.rename(columns={
+        'openness': 'o', 'conscientiousness': 'c', 'extroversion': 'e', 'agreeableness': 'a', 'neuroticism': 'n'
+    })
 
-    df = pd.DataFrame(columns = ['video', 'trait', 'selectedCnt', 'totalCnt'])
-    # df = pd.DataFrame( columns=['workerId', 'o.video.left', 'o.video.right', 'o.true', 'c.true', 'e.true', 'a.true', 'n.true', 'o.answer', 'c.answer', 'e.answer', 'a.answer', 'n.answer' ])
+    traits = ['o', 'c', 'e', 'a', 'n']
+    correctCnt = defaultdict(int)
+    incorrectCnt = defaultdict(int)
+    totalCnt = defaultdict(int)
+    accuracy = {}
 
-    traits = ['o', 'c','e','a','n']
+    # Collect new rows for the final DataFrame
+    new_rows = []
 
-    # Function to get the trait value from dfLabels
     def get_trait_value(file, trait):
-        value = dfLabels[dfLabels['File'] == file][trait]
-        return value.values[0] if not value.empty else None
+        match = dfLabels[dfLabels['File'] == file][trait]
+        return match.values[0] if not match.empty else None
 
-    # List to collect new rows
-
-    correctCnt = {'o':0, 'c':0, 'e':0, 'a':0, 'n':0}
-    incorrectCnt = {'o': 0, 'c': 0, 'e': 0, 'a': 0, 'n': 0}
-    totalCnt = {'o': 0, 'c': 0, 'e': 0, 'a': 0, 'n': 0}
-    accuracy = {'o': 0, 'c': 0, 'e': 0, 'a': 0, 'n': 0}
-    # Compare the traits and count where the left file's trait value is greater than the right file's trait value
-    for index, row in dfResponses.iterrows():
-
+    for _, row in dfResponses.iterrows():
         for trait in traits:
             left_file = row[f'{trait}.video.left'].rsplit('/', 1)[-1]
             right_file = row[f'{trait}.video.right'].rsplit('/', 1)[-1]
 
-            if not df[(df['video'] == left_file) & (df['trait'] == trait)].empty:
-                df.loc[(df['video'] == left_file) & (df['trait'] == trait), 'totalCnt'] += 1
+            # Update total and selected counts
+            new_rows.append({'video': left_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.left']), 'totalCnt': 1})
+            new_rows.append({'video': right_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.right']), 'totalCnt': 1})
 
-            else:
-                new_row = {'video': left_file, 'trait': trait, 'selectedCnt':0, 'totalCnt':1}
-                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+            # Get trait values from labels
+            left_trait_value = get_trait_value(left_file, trait)
+            right_trait_value = get_trait_value(right_file, trait)
 
-            if not df[(df['video'] == right_file) & (df['trait'] == trait)].empty:
-                df.loc[(df['video'] == right_file) & (df['trait'] == trait), 'totalCnt'] += 1
-            else:
-                new_row = {'video': right_file, 'trait': trait, 'selectedCnt':0, 'totalCnt': 1}
-                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-
-            if row[trait + '.left'] == True:
-                df.loc[(df['video'] == left_file) & (df['trait'] == trait), 'selectedCnt'] += 1
-
-            if row[trait + '.right'] == True:
-                df.loc[(df['video'] == right_file) & (df['trait'] == trait), 'selectedCnt'] += 1
-
-            left_trait_value = get_trait_value(left_file, trait) # labeled trait value
-            right_trait_value = get_trait_value(right_file, trait) # labeled trait value
-
-
+            # Compare values if available and compute correctness
             if left_trait_value is not None and right_trait_value is not None:
-                if abs(left_trait_value - right_trait_value) > diff: # only consider the cases where differences are bigger than dif
-                        if left_trait_value > right_trait_value:
-                            if row[trait + '.left'] == True:
-                                correctCnt[trait] += 1
-                            elif row[trait + '.right'] == True:
-                                incorrectCnt[trait] += 1
-                        elif left_trait_value < right_trait_value:
-                            if row[trait + '.right'] == True:
-                                correctCnt[trait] += 1
-                            elif row[trait + '.left'] == True:
-                                incorrectCnt[trait] += 1
+                if abs(left_trait_value - right_trait_value) > diff:
+                    if left_trait_value > right_trait_value:
+                        if row[f'{trait}.left']:
+                            correctCnt[trait] += 1
+                        elif row[f'{trait}.right']:
+                            incorrectCnt[trait] += 1
+                    elif left_trait_value < right_trait_value:
+                        if row[f'{trait}.right']:
+                            correctCnt[trait] += 1
+                        elif row[f'{trait}.left']:
+                            incorrectCnt[trait] += 1
 
-                # else: # if they are equal
-                #     if row[trait + '.equal'] == True:
-                #         correctCnt[trait] += 1
-                #     else:
-                #         incorrectCnt[trait] += 1
-
-
-
+    # Calculate accuracy per trait
     for trait in traits:
         totalCnt[trait] = correctCnt[trait] + incorrectCnt[trait]
-        if totalCnt[trait] > 0 :
-            accuracy[trait] = correctCnt[trait] /totalCnt[trait]
-        else:
-            accuracy[trait] = None
+        accuracy[trait] = correctCnt[trait] / totalCnt[trait] if totalCnt[trait] > 0 else None
 
+    # Create the final DataFrame
+    df = pd.DataFrame(new_rows)
+    df = df.groupby(['video', 'trait']).sum().reset_index()
 
+    print("Correct Counts:", dict(correctCnt))
+    print("Incorrect Counts:", dict(incorrectCnt))
+    print("Total Counts:", dict(totalCnt))
+    print("Accuracy:", accuracy)
 
-    print(correctCnt)
-    print(incorrectCnt)
-    print(totalCnt)
-    print(accuracy)
     return df
+
 
 
 
@@ -301,10 +281,28 @@ def calculatePrecision(diff, dfResponses, dfLabels):
 
 ########################## Results for Study 2 - Regression #################################
 
+# dfLabels = pd.read_csv('../csv/labels.csv')
+
 dfLabels = pd.read_csv('../mturk2/binned_regression_results.csv')
+
+# dfLabels = pd.read_csv('../other_models/binned_labels_normalized.csv')
+
 dfResponses = pd.read_csv('../mturk2/mturk2ValidResults.csv')
+# dfResponses = pd.read_csv('../mturk3/mturk3ValidResults.csv')
+
+# dfResponses = pd.concat([dfResponses1, dfResponses2])
+
+# combine two dfs
+
+dfLabels = pd.read_csv('../mturk3/binned_regression_results_3.csv')
+# dfLabels = pd.read_csv('../mturk3/labels.csv')
+
 dfFormatted = calculatePrecision(0,dfResponses, dfLabels)
-dfFormatted.to_csv("../mturk2/mturk2formattedResults.csv", index=False)
+# dfFormatted.to_csv("../mturk2/mturk2formattedResults.csv", index=False)
+# dfFormatted.to_csv("../mturk3/mturk3formattedResults.csv", index=False)
+# dfResponses = confusionMatrix('../mturk3/mturk3formattedResults.csv')
+
+
 # dfResponses = confusionMatrix('../mturk2/mturk2formattedResults.csv')
 
 

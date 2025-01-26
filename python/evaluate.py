@@ -20,6 +20,10 @@ from scipy.stats import chi2_contingency
 dfResponses = pd.read_csv('../mturk1/validResults3.csv') #MIG results
 dfLabels = pd.read_csv('../csv/labels.csv') # Actual results
 ##############################################################################
+# dfResponses = pd.read_csv('../mturk3/mturk3validResults.csv') #MIG results
+# dfLabels = pd.read_csv('../csv/labels.csv') # Actual results
+
+
 #
 # #Replace
 # dfResponses = dfResponses.rename(columns={'Answer.hO.left': 'openness.left', 'Answer.hO.right': 'openness.right',  'Answer.hO.equal': 'openness.equal',
@@ -198,6 +202,7 @@ def getValidData(fileIn, fileOut):
     # Identify workerIds with False in Answer.hT.equal
     rejected_worker_ids = df[(df['Answer.hTLeft.left'] == False) | (df['Answer.hTRight.right'] == False) ]['WorkerId'].unique()
 
+
     # Drop rows for these workerIds
     filtered_df = df[~df['WorkerId'].isin(rejected_worker_ids)]
 
@@ -208,13 +213,16 @@ def getValidData(fileIn, fileOut):
     # Write the filtered DataFrame to a new CSV file
     filtered_df.to_csv(fileOut, index=False)
 
+    print(rejected_worker_ids)
 
 
 
 # getValidData('results3.csv', 'validResults3.csv')# Results used in MIG
 
 
-getValidData('../mturk2/mturk2_results.csv', '../mturk2/mturk2ValidResults.csv')
+# getValidData('../mturk2/mturk2_results.csv', '../mturk2/mturk2ValidResults.csv')
+
+getValidData('../mturk3/mturk3_results.csv', '../mturk3/mturk3ValidResults.csv')
 
 # getValidData('results2Part1.csv', 'validResults2Part1.csv')
 # getValidData('results2Part2.csv', 'validResults2Part2.csv')
