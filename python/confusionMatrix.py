@@ -283,9 +283,13 @@ def calculatePrecision(diff, dfResponses, dfLabels):
 
 # dfLabels = pd.read_csv('../csv/labels.csv')
 
-dfLabels = pd.read_csv('../mturk2/binned_regression_results.csv')
+
+# dfLabels = pd.read_csv('../mturk2/binned_regression_results.csv')
+# dfLabels = pd.read_csv('../other_models/binned_labels_onlystudy.csv')
 
 # dfLabels = pd.read_csv('../other_models/binned_labels_normalized.csv')
+
+# dfResponses = pd.read_csv('../mturk1/validResults.csv')
 
 dfResponses = pd.read_csv('../mturk2/mturk2ValidResults.csv')
 # dfResponses = pd.read_csv('../mturk3/mturk3ValidResults.csv')
@@ -294,8 +298,13 @@ dfResponses = pd.read_csv('../mturk2/mturk2ValidResults.csv')
 
 # combine two dfs
 
-dfLabels = pd.read_csv('../mturk3/binned_regression_results_3.csv')
+# dfLabels = pd.read_csv('../mturk3/binned_regression_results_3.csv')
 # dfLabels = pd.read_csv('../mturk3/labels.csv')
+# dfLabels = pd.read_csv('../other_models/binned_labels_au_iter2.csv')
+# dfLabels = pd.read_csv('../other_models/binned_labels_au.csv')
+# dfLabels = pd.read_csv('../other_models/binned_labels_normalized.csv')
+# dfLabels = pd.read_csv('../other_models/binned_labels_normalized_userStudy.csv')
+dfLabels = pd.read_csv('../other_models/binned_labels_normalized_only_userstudy.csv')
 
 dfFormatted = calculatePrecision(0,dfResponses, dfLabels)
 # dfFormatted.to_csv("../mturk2/mturk2formattedResults.csv", index=False)
