@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score
-from scipy.stats import binom_test
+# from scipy.stats import binom_test
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -304,7 +304,7 @@ dfResponses = pd.read_csv('../mturk2/mturk2ValidResults.csv')
 # dfLabels = pd.read_csv('../other_models/binned_labels_au.csv')
 # dfLabels = pd.read_csv('../other_models/binned_labels_normalized.csv')
 # dfLabels = pd.read_csv('../other_models/binned_labels_normalized_userStudy.csv')
-dfLabels = pd.read_csv('../other_models/binned_labels_normalized_only_userstudy.csv')
+dfLabels = pd.read_csv('../other_models/binned_labels_what2.csv')
 
 dfFormatted = calculatePrecision(0,dfResponses, dfLabels)
 # dfFormatted.to_csv("../mturk2/mturk2formattedResults.csv", index=False)
