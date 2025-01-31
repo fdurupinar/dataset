@@ -5,19 +5,19 @@ from statsmodels.stats.multitest import multipletests
 
 from scipy.stats import chi2_contingency
 
-dfInput = pd.read_csv('../csv/formattedResults3.csv')
+
 columns_of_interest = [
     'video.left', 'video.right'
 ]
 
-# Flatten all unique values from the specified columns into a single set
-unique_names = set()
-for col in columns_of_interest:
-    if col in dfInput.columns:
-        unique_names.update(dfInput[col].dropna().unique())
-
-# Count the number of unique names
-unique_videos_total = len(unique_names)
+# # Flatten all unique values from the specified columns into a single set
+# unique_names = set()
+# for col in columns_of_interest:
+#     if col in dfInput.columns:
+#         unique_names.update(dfInput[col].dropna().unique())
+#
+# # Count the number of unique names
+# unique_videos_total = len(unique_names)
 
 
 
@@ -29,10 +29,10 @@ unique_videos_total = len(unique_names)
 # # Combine unique counts (considering the possibility of overlap between left and right videos)
 # unique_videos_total = pd.concat([dfInput['video.left'], dfInput['video.right']]).nunique()
 
-print(f"Total number of unique videos: {unique_videos_total}")
+# print(f"Total number of unique videos: {unique_videos_total}")
 
 
-print(f"Total number of unique workers: {dfInput['workerId'].nunique()}")
+
 
 
 def print_demographics(name):
@@ -41,6 +41,7 @@ def print_demographics(name):
     df = pd.read_csv(name)
     df2 = pd.DataFrame(columns=['pRace', 'pGender', 'pAge', 'pId'])
 
+    print(f"Total number of unique workers: {df['WorkerId'].nunique()}")
 
     pRace = []
     pGender = []
@@ -127,6 +128,11 @@ def print_demographics(name):
 #
 #     print("White: {:.2f}% / Black/African American: {:.2f}% / Hispanic/Latino: {:.2f}% / Asian: {:.2f}%/ Native American: {:.2f}%".format(whites * 100 / len(race_list), blacks * 100 / len(race_list),latinos * 100 / len(race_list), asians * 100 / len(race_list),natives * 100 / len(race_list)))
 
-df = print_demographics("results3.csv")
+# df = print_demographics("results3.csv")
+# df = print_demographics("../mturk2/mturk2_results.csv")
+
+df = print_demographics("../mturk3/mturk3_results.csv")
+
+
 # print_race_demographics(df)
 # print_gender_demographics(df)

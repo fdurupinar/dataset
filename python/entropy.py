@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score
-from scipy.stats import binom_test
+
 
 import seaborn as sns
 import matplotlib.pyplot as plt

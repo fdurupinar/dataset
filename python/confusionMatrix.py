@@ -191,81 +191,81 @@ def reformatFiles(fileIn, fileOut, dfLabels):
 import pandas as pd
 from collections import defaultdict
 
-# This method is wrong because the accuracy will inevitably depend on user agreement. This does not return accuracy but user agreement
-# def calculatePrecision(diff, dfResponses, dfLabels):
-#     # Rename columns for easier access
-#     dfResponses = dfResponses.rename(columns={
-#         'Answer.hO.left': 'o.left', 'Answer.hO.right': 'o.right', 'Answer.hO.equal': 'o.equal',
-#         'Answer.hC.left': 'c.left', 'Answer.hC.right': 'c.right', 'Answer.hC.equal': 'c.equal',
-#         'Answer.hE.left': 'e.left', 'Answer.hE.right': 'e.right', 'Answer.hE.equal': 'e.equal',
-#         'Answer.hA.left': 'a.left', 'Answer.hA.right': 'a.right', 'Answer.hA.equal': 'a.equal',
-#         'Answer.hN.left': 'n.left', 'Answer.hN.right': 'n.right', 'Answer.hN.equal': 'n.equal',
-#         'Input.openness_video1': 'o.video.left', 'Input.openness_video2': 'o.video.right',
-#         'Input.conscientiousness_video1': 'c.video.left', 'Input.conscientiousness_video2': 'c.video.right',
-#         'Input.extroversion_video1': 'e.video.left', 'Input.extroversion_video2': 'e.video.right',
-#         'Input.agreeableness_video1': 'a.video.left', 'Input.agreeableness_video2': 'a.video.right',
-#         'Input.neuroticism_video1': 'n.video.left', 'Input.neuroticism_video2': 'n.video.right'
-#     })
-#
-#     dfLabels = dfLabels.rename(columns={
-#         'openness': 'o', 'conscientiousness': 'c', 'extroversion': 'e', 'agreeableness': 'a', 'neuroticism': 'n'
-#     })
-#
-#     traits = ['o', 'c', 'e', 'a', 'n']
-#     correctCnt = defaultdict(int)
-#     incorrectCnt = defaultdict(int)
-#     totalCnt = defaultdict(int)
-#     accuracy = {}
-#
-#     # Collect new rows for the final DataFrame
-#     new_rows = []
-#
-#     def get_trait_value(file, trait):
-#         match = dfLabels[dfLabels['File'] == file][trait]
-#         return match.values[0] if not match.empty else None
-#
-#     for _, row in dfResponses.iterrows():
-#         for trait in traits:
-#             left_file = row[f'{trait}.video.left'].rsplit('/', 1)[-1]
-#             right_file = row[f'{trait}.video.right'].rsplit('/', 1)[-1]
-#
-#             # Update total and selected counts
-#             new_rows.append({'video': left_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.left']), 'totalCnt': 1})
-#             new_rows.append({'video': right_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.right']), 'totalCnt': 1})
-#
-#             # Get trait values from labels
-#             left_trait_value = get_trait_value(left_file, trait)
-#             right_trait_value = get_trait_value(right_file, trait)
-#
-#             # Compare values if available and compute correctness
-#             if left_trait_value is not None and right_trait_value is not None:
-#                 if abs(left_trait_value - right_trait_value) > diff:
-#                     if left_trait_value > right_trait_value:
-#                         if row[f'{trait}.left']:
-#                             correctCnt[trait] += 1
-#                         elif row[f'{trait}.right']:
-#                             incorrectCnt[trait] += 1
-#                     elif left_trait_value < right_trait_value:
-#                         if row[f'{trait}.right']:
-#                             correctCnt[trait] += 1
-#                         elif row[f'{trait}.left']:
-#                             incorrectCnt[trait] += 1
-#
-#     # Calculate accuracy per trait
-#     for trait in traits:
-#         totalCnt[trait] = correctCnt[trait] + incorrectCnt[trait]
-#         accuracy[trait] = correctCnt[trait] / totalCnt[trait] if totalCnt[trait] > 0 else None
-#
-#     # Create the final DataFrame
-#     df = pd.DataFrame(new_rows)
-#     df = df.groupby(['video', 'trait']).sum().reset_index()
-#
-#     print("Correct Counts:", dict(correctCnt))
-#     print("Incorrect Counts:", dict(incorrectCnt))
-#     print("Total Counts:", dict(totalCnt))
-#     print("Accuracy:", accuracy)
-#
-#     return df
+
+def calculatePrecision(diff, dfResponses, dfLabels):
+    # Rename columns for easier access
+    dfResponses = dfResponses.rename(columns={
+        'Answer.hO.left': 'o.left', 'Answer.hO.right': 'o.right', 'Answer.hO.equal': 'o.equal',
+        'Answer.hC.left': 'c.left', 'Answer.hC.right': 'c.right', 'Answer.hC.equal': 'c.equal',
+        'Answer.hE.left': 'e.left', 'Answer.hE.right': 'e.right', 'Answer.hE.equal': 'e.equal',
+        'Answer.hA.left': 'a.left', 'Answer.hA.right': 'a.right', 'Answer.hA.equal': 'a.equal',
+        'Answer.hN.left': 'n.left', 'Answer.hN.right': 'n.right', 'Answer.hN.equal': 'n.equal',
+        'Input.openness_video1': 'o.video.left', 'Input.openness_video2': 'o.video.right',
+        'Input.conscientiousness_video1': 'c.video.left', 'Input.conscientiousness_video2': 'c.video.right',
+        'Input.extroversion_video1': 'e.video.left', 'Input.extroversion_video2': 'e.video.right',
+        'Input.agreeableness_video1': 'a.video.left', 'Input.agreeableness_video2': 'a.video.right',
+        'Input.neuroticism_video1': 'n.video.left', 'Input.neuroticism_video2': 'n.video.right'
+    })
+
+    dfLabels = dfLabels.rename(columns={
+        'openness': 'o', 'conscientiousness': 'c', 'extroversion': 'e', 'agreeableness': 'a', 'neuroticism': 'n'
+    })
+
+    traits = ['o', 'c', 'e', 'a', 'n']
+    correctCnt = defaultdict(int)
+    incorrectCnt = defaultdict(int)
+    totalCnt = defaultdict(int)
+    accuracy = {}
+
+    # Collect new rows for the final DataFrame
+    new_rows = []
+
+    def get_trait_value(file, trait):
+        match = dfLabels[dfLabels['File'] == file][trait]
+        return match.values[0] if not match.empty else None
+
+    for _, row in dfResponses.iterrows():
+        for trait in traits:
+            left_file = row[f'{trait}.video.left'].rsplit('/', 1)[-1]
+            right_file = row[f'{trait}.video.right'].rsplit('/', 1)[-1]
+
+            # Update total and selected counts
+            new_rows.append({'video': left_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.left']), 'totalCnt': 1})
+            new_rows.append({'video': right_file, 'trait': trait, 'selectedCnt': int(row[f'{trait}.right']), 'totalCnt': 1})
+
+            # Get trait values from labels
+            left_trait_value = get_trait_value(left_file, trait)
+            right_trait_value = get_trait_value(right_file, trait)
+
+            # Compare values if available and compute correctness f
+            if left_trait_value is not None and right_trait_value is not None:
+                if abs(left_trait_value - right_trait_value) > diff:
+                    if left_trait_value > right_trait_value:
+                        if row[f'{trait}.left'] == True:
+                            correctCnt[trait] += 1
+                        elif row[f'{trait}.right']  == True:
+                            incorrectCnt[trait] += 1
+                    elif left_trait_value < right_trait_value:
+                        if row[f'{trait}.right'] == True:
+                            correctCnt[trait] += 1
+                        elif row[f'{trait}.left'] == True:
+                            incorrectCnt[trait] += 1
+
+    # Calculate accuracy per trait
+    for trait in traits:
+        totalCnt[trait] = correctCnt[trait] + incorrectCnt[trait]
+        accuracy[trait] = correctCnt[trait] / totalCnt[trait] if totalCnt[trait] > 0 else None
+
+    # Create the final DataFrame
+    df = pd.DataFrame(new_rows)
+    df = df.groupby(['video', 'trait']).sum().reset_index()
+
+    print("Correct Counts:", dict(correctCnt))
+    print("Incorrect Counts:", dict(incorrectCnt))
+    print("Total Counts:", dict(totalCnt))
+    print("Accuracy:", accuracy)
+
+    return df
 
 def calculateFullAccuracy(df_true, df_pred):
     df_true = df_true.rename(columns={"openness":"o", "conscientiousness":"c", "extroversion":"e", "agreeableness":"a",
@@ -317,16 +317,46 @@ def calculateStudyAccuracy(df_true, df_selections):
     accuracy = {}
     for trait in traits:
         mae = abs(df[f"{trait}_true"] - df[f"{trait}_pred"]).mean()
-        accuracy[trait] = (1 - mae) * 100  # Convert to percentage
-
+        accuracy[trait] = (1 - mae)
     print(accuracy)
 
     return accuracy
 
 
 
+def plot_accuracy():
+    # Ensure traits are always ordered as "OCEAN" (Openness, Conscientiousness, Extroversion, Agreeableness, Neuroticism)
+    traits = ['Open.', 'Consc.', 'Extro.', 'Agree.', 'Neuro.']
+    iteration_1 = [0.6908, 0.6796, 0.6218, 0.7401, 0.7433]
+    iteration_2 = [0.7973, 0.7532, 0.6934, 0.6934, 0.7144]
 
+    # Plotting
+    x = np.arange(len(traits))  # Position of traits on X-axis
+    width = 0.35  # Width of bars
 
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars1 = ax.bar(x - width / 2, iteration_1, width, label='Iteration 1', color='blue', alpha=0.7)
+    bars2 = ax.bar(x + width / 2, iteration_2, width, label='Iteration 2', color='orange', alpha=0.7)
+
+    # Labels and titles
+    # ax.set_xlabel("Traits")
+    ax.set_ylabel("1 - MAE")
+    ax.set_title("Comparison of 1 - MAE Accuracy Across Iterations")
+    ax.set_xticks(x)
+    ax.set_xticklabels(traits)
+    ax.legend()
+
+    # Display values on bars
+    for bar in bars1 + bars2:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2, height, f'{height:.2f}', ha='center', va='bottom', fontsize=10)
+
+    # Show plot
+    plt.ylim(0.5, 0.85)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
+
+plot_accuracy()
 ########################## Results for Study 1 - Classification #################################
 # dfLabels = pd.read_csv('labels.csv')
 # dfResponses = pd.read_csv('validResults3.csv')
@@ -363,21 +393,23 @@ def calculateStudyAccuracy(df_true, df_selections):
 # # dfActualLabels =  pd.read_csv('../other_models/binned_labels_au.csv')
 # # dfActualLabels =  pd.read_csv('../other_models/binned_labels_what2.csv')
 # dfActualLabels =  pd.read_csv('../mturk2/binned_regression_results.csv')
+#
 # dfActualLabels =  pd.read_csv('../other_models/binned_labels_normalized_iter1.csv')
-# dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter1.csv')
 # dfStudy = pd.read_csv('../mturk2/mturk2formattedResults.csv')
 # calculateStudyAccuracy(dfActualLabels, dfStudy)
 
-
-
+# dfResponses = pd.read_csv('../mturk2/mturk2ValidResults.csv')
+# dfLabels =  pd.read_csv('../other_models/binned_labels_normalized_iter1.csv')
+# dfFormatted = calculatePrecision(0,dfResponses, dfLabels)
 
 #2nd iteration's accuracy
 # dfActualLabels =  pd.read_csv('../mturk3/binned_regression_results_3.csv')
 # dfActualLabels =  pd.read_csv('../other_models/binned_labels_normalized_iter2.csv')
-dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter2.csv')
-dfStudy = pd.read_csv('../mturk3/mturk3formattedResults.csv')
-calculateStudyAccuracy(dfActualLabels, dfStudy)
-#
+# dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter2.csv')
+# dfActualLabels =  pd.read_csv('../other_models/labels_normalized_iter2.csv')
+# dfStudy = pd.read_csv('../mturk3/mturk3formattedResults.csv')
+# calculateStudyAccuracy(dfActualLabels, dfStudy)
+# # #
 
 # dfPredLabels =  pd.read_csv('../mturk3/mturk3UserLabels.csv')
 # calculateFullAccuracy(dfActualLabels, dfPredLabels)
@@ -392,7 +424,7 @@ calculateStudyAccuracy(dfActualLabels, dfStudy)
 # dfLabels = pd.read_csv('../other_models/binned_labels_normalized_userStudy.csv')
 # dfLabels = pd.read_csv('../other_models/binned_labels_what2.csv')
 
-# dfFormatted = calculatePrecision(0,dfResponses, dfLabels)
+
 # dfFormatted.to_csv("../mturk2/mturk2formattedResults.csv", index=False)
 # dfFormatted.to_csv("../mturk3/mturk3formattedResults.csv", index=False)
 # dfResponses = confusionMatrix('../mturk3/mturk3formattedResults.csv')
