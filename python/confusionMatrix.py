@@ -267,7 +267,7 @@ from collections import defaultdict
 #
 #     return df
 
-def calculateAccuracy(df_true, df_pred, delta=0.1):
+def calculateFullAccuracy(df_true, df_pred):
     df_true = df_true.rename(columns={"openness":"o", "conscientiousness":"c", "extroversion":"e", "agreeableness":"a",
                                       "neuroticism":"n", "File":"video"})
 
@@ -290,6 +290,41 @@ def calculateAccuracy(df_true, df_pred, delta=0.1):
 
     print(accuracy)
     return accuracy
+
+def calculateStudyAccuracy(df_true, df_selections):
+    df_true = df_true.rename(columns={"openness":"o", "conscientiousness":"c", "extroversion":"e", "agreeableness":"a",
+                                      "neuroticism":"n", "File":"video"})
+
+    # Keep only the rows from df_true that exist in df_pred
+    df_true = df_true[df_true['video'].isin(df_selections['video'])]
+
+    # Compute predicted values: selectedCnt / totalCnt
+    df_selections['predicted_value'] = df_selections['selectedCnt'] / df_selections['totalCnt']
+
+    # Pivot df_pred to align with df_true format (video, traits as columns)
+    df_pred_pivot = df_selections.pivot(index='video', columns='trait', values='predicted_value').reset_index()
+
+    # Rename columns to match df_true format
+    df_pred_pivot.columns = ['video'] + list(df_pred_pivot.columns[1:])
+
+    # Merge ground truth with predictions (only common videos)
+    df = pd.merge(df_true, df_pred_pivot, on='video', how='inner', suffixes=('_true', '_pred'))
+
+    # Traits to evaluate (intersection of available traits)
+    traits = list(set(df_true.columns[1:]) & set(df_pred_pivot.columns[1:]))
+
+    # Compute 1 - MAE accuracy per trait
+    accuracy = {}
+    for trait in traits:
+        mae = abs(df[f"{trait}_true"] - df[f"{trait}_pred"]).mean()
+        accuracy[trait] = (1 - mae) * 100  # Convert to percentage
+
+    print(accuracy)
+
+    return accuracy
+
+
+
 
 
 ########################## Results for Study 1 - Classification #################################
@@ -328,14 +363,25 @@ def calculateAccuracy(df_true, df_pred, delta=0.1):
 # # dfActualLabels =  pd.read_csv('../other_models/binned_labels_au.csv')
 # # dfActualLabels =  pd.read_csv('../other_models/binned_labels_what2.csv')
 # dfActualLabels =  pd.read_csv('../mturk2/binned_regression_results.csv')
-# dfPredLabels =  pd.read_csv('../mturk2/mturk2UserLabels.csv')
-# calculateAccuracy(dfActualLabels, dfPredLabels)
+# dfActualLabels =  pd.read_csv('../other_models/binned_labels_normalized_iter1.csv')
+# dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter1.csv')
+# dfStudy = pd.read_csv('../mturk2/mturk2formattedResults.csv')
+# calculateStudyAccuracy(dfActualLabels, dfStudy)
+
+
+
 
 #2nd iteration's accuracy
-dfActualLabels =  pd.read_csv('../mturk3/binned_regression_results_3.csv')
-# dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter1.csv')
-dfPredLabels =  pd.read_csv('../mturk3/mturk3UserLabels.csv')
-calculateAccuracy(dfActualLabels, dfPredLabels)
+# dfActualLabels =  pd.read_csv('../mturk3/binned_regression_results_3.csv')
+# dfActualLabels =  pd.read_csv('../other_models/binned_labels_normalized_iter2.csv')
+dfActualLabels =  pd.read_csv('../other_models/binned_labels_au_iter2.csv')
+dfStudy = pd.read_csv('../mturk3/mturk3formattedResults.csv')
+calculateStudyAccuracy(dfActualLabels, dfStudy)
+#
+
+# dfPredLabels =  pd.read_csv('../mturk3/mturk3UserLabels.csv')
+# calculateFullAccuracy(dfActualLabels, dfPredLabels)
+
 
 
 # dfLabels = pd.read_csv('../mturk3/binned_regression_results_3.csv')
